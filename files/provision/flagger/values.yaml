@@ -1,0 +1,84 @@
+global:
+  scheme: http
+  host: k8s.alauda.io
+  useNodePort: false
+  labelBaseDomain: alauda.io
+  registry:
+    address: harbor.alauda.cn
+  images:
+    flagger:
+      repository: asm/flagger
+      tag: c235eee
+      code: gitlab-ce.alauda.cn/micro-service/flagger
+      support_arm: true
+    loadtester:
+      repository: asm/flagger-loadtester
+      tag: 0.16.0
+      support_arm: false
+  imagePullSecrets:
+    - alaudak8s
+image:
+  pullPolicy: IfNotPresent
+  pullSecret: null
+logLevel: info
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "8080"
+  appmesh.k8s.aws/sidecarInjectorWebhook: disabled
+# priority class name for pod priority configuration
+podPriorityClassName: ""
+metricsServer: http://prometheus:9090
+istioNamespace: istio-system
+meshProvider: istio
+namespace: ""
+selectorLabels: ""
+configTracking:
+  enabled: true
+securityContext:
+  enabled: true
+  context:
+    readOnlyRootFilesystem: true
+    runAsUser: 10001
+eventWebhook: ""
+slack:
+  user: flagger
+  channel: null
+  url: null
+msteams:
+  url: null
+podMonitor:
+  enabled: false
+  namespace: null
+  interval: 15s
+  additionalLabels: {}
+env: []
+leaderElection:
+  enabled: false
+  replicaCount: 1
+serviceAccount:
+  create: true
+  name: ""
+  annotations: {}
+rbac:
+  create: true
+  pspEnabled: false
+crd:
+  create: true
+nameOverride: ""
+fullnameOverride: ""
+resources:
+  limits:
+    memory: 512Mi
+    cpu: 1000m
+  requests:
+    memory: 32Mi
+    cpu: 10m
+nodeSelector: {}
+tolerations: []
+prometheus:
+  install: false
+  image: docker.io/prom/prometheus:v2.17.1
+istio:
+  kubeconfig:
+    secretName: ""
+    key: kubeconfig

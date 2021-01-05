@@ -1,0 +1,20 @@
+# permissions for end users to view flaggers.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: flagger-viewer-role
+rules:
+- apiGroups:
+  - operator.alauda.io
+  resources:
+  - flaggers
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - operator.alauda.io
+  resources:
+  - flaggers/status
+  verbs:
+  - get
