@@ -1,0 +1,24 @@
+# permissions for end users to edit flaggers.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: flagger-editor-role
+rules:
+- apiGroups:
+  - operator.alauda.io
+  resources:
+  - flaggers
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - operator.alauda.io
+  resources:
+  - flaggers/status
+  verbs:
+  - get

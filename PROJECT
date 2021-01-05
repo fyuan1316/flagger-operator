@@ -1,0 +1,11 @@
+domain: alauda.io
+layout: go.kubebuilder.io/v2
+projectName: flagger-operator
+repo: gitlab-ce.alauda.cn/asm/flagger-operator
+resources:
+- group: operator
+  kind: Flagger
+  version: v1alpha1
+version: 3-alpha
+plugins:
+  go.sdk.operatorframework.io/v2-alpha: {}

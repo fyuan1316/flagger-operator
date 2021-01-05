@@ -1,0 +1,7 @@
+apiVersion: operator.alauda.io/v1alpha1
+kind: Flagger
+metadata:
+  name: flagger-sample
+spec:
+  # Add fields here
+  foo: bar

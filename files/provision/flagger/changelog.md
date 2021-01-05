@@ -1,0 +1,1 @@
+2020-04-01  flagger 0.26.0 change image repository with global
