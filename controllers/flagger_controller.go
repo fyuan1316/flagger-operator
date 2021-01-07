@@ -19,23 +19,23 @@ package controllers
 import (
 	"context"
 	"fmt"
+	entry "github.com/fyuan1316/flagger-operator/pkg/task/entry"
+	"github.com/fyuan1316/operatorlib/manage"
+	"github.com/fyuan1316/operatorlib/manage/model"
 	pkgerrors "github.com/pkg/errors"
-	"gitlab-ce.alauda.cn/asm/flagger-operator/pkg/oprlib/manage"
-	"gitlab-ce.alauda.cn/asm/flagger-operator/pkg/oprlib/manage/model"
-	entry "gitlab-ce.alauda.cn/asm/flagger-operator/pkg/task/entry"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/tools/record"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 	"sync"
 
+	flaagererrors "github.com/fyuan1316/flagger-operator/pkg/errors"
 	"github.com/go-logr/logr"
-	flaagererrors "gitlab-ce.alauda.cn/asm/flagger-operator/pkg/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	operatorv1alpha1 "gitlab-ce.alauda.cn/asm/flagger-operator/api/v1alpha1"
+	operatorv1alpha1 "github.com/fyuan1316/flagger-operator/api/v1alpha1"
 )
 
 // FlaggerReconciler reconciles a Flagger object
@@ -47,7 +47,7 @@ type FlaggerReconciler struct {
 }
 
 var once = sync.Once{}
-var mgr *model.OperatorManage
+var mgr *manage.OperatorManage
 var (
 	provisionTasks [][]model.ExecuteItem
 	deletionTasks  [][]model.ExecuteItem
@@ -77,10 +77,10 @@ func (r *FlaggerReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	once.Do(func() {
 		mgr = manage.NewOperatorManage(
 			r.Client,
-			model.SetScheme(r.Scheme),
-			model.SetRecorder(r.Recorder),
-			model.SetFinalizer(finalizerID),
-			model.SetStatusUpdater(operatorStatusUpdater))
+			manage.SetScheme(r.Scheme),
+			manage.SetRecorder(r.Recorder),
+			manage.SetFinalizer(finalizerID),
+			manage.SetStatusUpdater(operatorStatusUpdater))
 
 		provisionTasks, deletionTasks = entry.GetOperatorStages()
 	})

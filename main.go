@@ -18,8 +18,8 @@ package main
 
 import (
 	"flag"
-	crdv1beta1 "gitlab-ce.alauda.cn/asm/flagger-operator/api/dep/crd/v1beta1"
-	"gitlab-ce.alauda.cn/asm/flagger-operator/pkg/task/entry"
+	crdv1beta1 "github.com/fyuan1316/flagger-operator/api/dep/crd/v1beta1"
+	"github.com/fyuan1316/flagger-operator/pkg/task/entry"
 	"os"
 
 	"k8s.io/apimachinery/pkg/runtime"
@@ -29,8 +29,8 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	operatorv1alpha1 "gitlab-ce.alauda.cn/asm/flagger-operator/api/v1alpha1"
-	"gitlab-ce.alauda.cn/asm/flagger-operator/controllers"
+	operatorv1alpha1 "github.com/fyuan1316/flagger-operator/api/v1alpha1"
+	"github.com/fyuan1316/flagger-operator/controllers"
 	// +kubebuilder:scaffold:imports
 )
 

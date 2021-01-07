@@ -1,15 +1,13 @@
 package tasks
 
 import (
-	"fmt"
-	"gitlab-ce.alauda.cn/asm/flagger-operator/pkg/oprlib/manage/model"
-	"gitlab-ce.alauda.cn/asm/flagger-operator/pkg/oprlib/processor/resource"
-	resource2 "gitlab-ce.alauda.cn/asm/flagger-operator/pkg/oprlib/resource"
-	"gitlab-ce.alauda.cn/asm/flagger-operator/pkg/task"
+	"github.com/fyuan1316/flagger-operator/pkg/task"
+	"github.com/fyuan1316/operatorlib/manage/model"
+	"github.com/fyuan1316/operatorlib/task/chart"
 )
 
 type ProvisionResourcesTask struct {
-	*resource.ChartTask
+	*chart.ChartTask
 }
 
 func (p ProvisionResourcesTask) IsReady(oCtx *model.OperatorContext) bool {
@@ -37,26 +35,10 @@ var ClusterAsmResDir = "files/provision/flagger"
 
 func SetUpResource() {
 	ProvisionResources = ProvisionResourcesTask{
-		&resource.ChartTask{
-			ChartDir: ClusterAsmResDir,
-			//TemplateValues: data.GetDefaults(),
-			// 增加自定义的mapping操作
-			//ResourceMappings:
-
+		&chart.ChartTask{
+			Dir: ClusterAsmResDir,
 		},
 	}
+	ProvisionResources.Init()
 	ProvisionResources.Override(ProvisionResources)
-
-	var (
-		files map[string]string
-		err   error
-	)
-
-	if files, err = resource2.GetChartResources(ClusterAsmResDir, nil); err != nil {
-		panic(err)
-	}
-	if err = ProvisionResources.LoadResources(files); err != nil {
-		panic(err)
-	}
-	fmt.Println()
 }

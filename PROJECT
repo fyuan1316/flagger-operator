@@ -1,7 +1,7 @@
 domain: alauda.io
 layout: go.kubebuilder.io/v2
 projectName: flagger-operator
-repo: gitlab-ce.alauda.cn/asm/flagger-operator
+repo: github.com/fyuan1316/flagger-operator
 resources:
 - group: operator
   kind: Flagger

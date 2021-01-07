@@ -1,15 +1,12 @@
 package provision
 
 import (
-	"gitlab-ce.alauda.cn/asm/flagger-operator/pkg/oprlib/manage/model"
-	"gitlab-ce.alauda.cn/asm/flagger-operator/pkg/task/provision/tasks"
+	"github.com/fyuan1316/flagger-operator/pkg/task/provision/tasks"
+	"github.com/fyuan1316/operatorlib/manage/model"
 )
 
 func GetStages() [][]model.ExecuteItem {
 	return [][]model.ExecuteItem{
-		{
-			tasks.ProvisionCrds,
-		},
 		{
 			tasks.ProvisionResources,
 		},
