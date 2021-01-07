@@ -17,7 +17,7 @@ limitations under the License.
 package v1alpha1
 
 import (
-	"gitlab-ce.alauda.cn/asm/flagger-operator/pkg/oprlib/api"
+	"github.com/fyuan1316/operatorlib/api"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/yaml"
 )
@@ -32,7 +32,7 @@ type FlaggerSpec struct {
 
 	// Foo is an example field of Flagger. Edit Flagger_types.go to remove/update
 	//Foo string `json:"foo,omitempty"`
-	Parameters string `json:"parameters,omitempty"`
+	api.OperatorSpec `json:",inline"`
 }
 
 // FlaggerStatus defines the observed state of Flagger

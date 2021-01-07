@@ -3,8 +3,6 @@
 apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
 metadata:
-  annotations:
-    controller-gen.kubebuilder.io/version: v0.3.0
   creationTimestamp: null
   name: flaggers.operator.alauda.io
 spec:
@@ -14,7 +12,7 @@ spec:
     listKind: FlaggerList
     plural: flaggers
     singular: flagger
-  scope: Namespaced
+  scope: ""
   subresources:
     status: {}
   validation:
@@ -37,8 +35,6 @@ spec:
           description: FlaggerSpec defines the desired state of Flagger
           properties:
             parameters:
-              description: Foo is an example field of Flagger. Edit Flagger_types.go
-                to remove/update Foo string `json:"foo,omitempty"`
               type: string
           type: object
         status:

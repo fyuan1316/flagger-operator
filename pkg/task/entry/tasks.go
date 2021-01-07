@@ -1,9 +1,9 @@
 package entry
 
 import (
-	"gitlab-ce.alauda.cn/asm/flagger-operator/pkg/oprlib/manage/model"
-	"gitlab-ce.alauda.cn/asm/flagger-operator/pkg/task/provision"
-	provisiontasks "gitlab-ce.alauda.cn/asm/flagger-operator/pkg/task/provision/tasks"
+	"github.com/fyuan1316/flagger-operator/pkg/task/provision"
+	provisiontasks "github.com/fyuan1316/flagger-operator/pkg/task/provision/tasks"
+	"github.com/fyuan1316/operatorlib/manage/model"
 )
 
 func GetOperatorStages() ([][]model.ExecuteItem, [][]model.ExecuteItem) {
@@ -30,7 +30,6 @@ func SetUp() error {
 	// 1 migrations
 	//migrationtasks.SetUpMigShell()
 	// 2 provisions
-	provisiontasks.SetUpCrds()
 	provisiontasks.SetUpResource()
 	//-----------------
 	//for delete stages

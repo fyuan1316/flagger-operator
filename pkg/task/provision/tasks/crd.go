@@ -1,11 +1,12 @@
 package tasks
 
+/*
 import (
 	"fmt"
-	"gitlab-ce.alauda.cn/asm/flagger-operator/pkg/oprlib/manage/model"
-	"gitlab-ce.alauda.cn/asm/flagger-operator/pkg/oprlib/processor/resource"
-	resource2 "gitlab-ce.alauda.cn/asm/flagger-operator/pkg/oprlib/resource"
-	"gitlab-ce.alauda.cn/asm/flagger-operator/pkg/task"
+	"github.com/fyuan1316/flagger-operator/pkg/oprlib/manage/model"
+	"github.com/fyuan1316/flagger-operator/pkg/oprlib/processor/resource"
+	resource2 "github.com/fyuan1316/flagger-operator/pkg/oprlib/resource"
+	"github.com/fyuan1316/flagger-operator/pkg/task"
 )
 
 type ProvisionCrdsTask struct {
@@ -46,3 +47,6 @@ func SetUpCrds() {
 }
 
 var _ model.ExecuteItem = ProvisionCrdsTask{}
+
+
+*/
