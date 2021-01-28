@@ -1,0 +1,12 @@
+apiVersion: operator.alauda.io/v1alpha1
+kind: Flagger
+metadata:
+  name: flagger-sample
+spec:
+  cluster: ovn
+  namespace: istio-system
+  parameters:
+    global:
+      images:
+        flagger:
+          tag: c235eee

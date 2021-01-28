@@ -19,7 +19,7 @@ package v1alpha1
 import (
 	"github.com/fyuan1316/operatorlib/api"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"sigs.k8s.io/yaml"
+	"k8s.io/apimachinery/pkg/runtime"
 )
 
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
@@ -32,7 +32,9 @@ type FlaggerSpec struct {
 
 	// Foo is an example field of Flagger. Edit Flagger_types.go to remove/update
 	//Foo string `json:"foo,omitempty"`
-	api.OperatorSpec `json:",inline"`
+	Cluster    string                          `json:"cluster"`
+	Namespace  string                          `json:"namespace,omitempty"`
+	Parameters map[string]runtime.RawExtension `json:"parameters,omitempty"`
 }
 
 // FlaggerStatus defines the observed state of Flagger
@@ -65,13 +67,4 @@ type FlaggerList struct {
 
 func init() {
 	SchemeBuilder.Register(&Flagger{}, &FlaggerList{})
-}
-
-func (in Flagger) GetOperatorParams() (map[string]interface{}, error) {
-	var m map[string]interface{}
-	if err := yaml.Unmarshal([]byte(in.Spec.Parameters), &m); err != nil {
-		return nil, err
-	}
-
-	return m, nil
 }

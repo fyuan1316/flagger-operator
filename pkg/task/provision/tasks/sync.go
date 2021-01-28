@@ -10,6 +10,10 @@ type ProvisionResourcesTask struct {
 	*chart.ChartTask
 }
 
+func (p ProvisionResourcesTask) GetName() string {
+	return "flagger-controlplane-install"
+}
+
 func (p ProvisionResourcesTask) IsReady(oCtx *model.OperatorContext) bool {
 	return true
 }

@@ -34,12 +34,76 @@ spec:
         spec:
           description: FlaggerSpec defines the desired state of Flagger
           properties:
-            parameters:
+            cluster:
+              description: Foo is an example field of Flagger. Edit Flagger_types.go
+                to remove/update Foo string `json:"foo,omitempty"`
               type: string
+            namespace:
+              type: string
+            parameters:
+              additionalProperties:
+                type: object
+              type: object
+          required:
+          - cluster
           type: object
         status:
           description: FlaggerStatus defines the observed state of Flagger
           properties:
+            deleteConditions:
+              additionalProperties:
+                items:
+                  properties:
+                    lastTransitionTime:
+                      format: date-time
+                      type: string
+                    message:
+                      type: string
+                    name:
+                      type: string
+                    observedGeneration:
+                      format: int64
+                      type: integer
+                    reason:
+                      type: string
+                    status:
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - name
+                  - reason
+                  - status
+                  type: object
+                type: array
+              type: object
+            installConditions:
+              additionalProperties:
+                items:
+                  properties:
+                    lastTransitionTime:
+                      format: date-time
+                      type: string
+                    message:
+                      type: string
+                    name:
+                      type: string
+                    observedGeneration:
+                      format: int64
+                      type: integer
+                    reason:
+                      type: string
+                    status:
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - name
+                  - reason
+                  - status
+                  type: object
+                type: array
+              type: object
             state:
               type: string
           type: object

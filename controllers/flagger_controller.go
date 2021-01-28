@@ -20,16 +20,16 @@ import (
 	"context"
 	"fmt"
 	entry "github.com/fyuan1316/flagger-operator/pkg/task/entry"
+	"github.com/fyuan1316/operatorlib/equality"
 	"github.com/fyuan1316/operatorlib/manage"
 	"github.com/fyuan1316/operatorlib/manage/model"
-	pkgerrors "github.com/pkg/errors"
 	"k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/tools/record"
+	"k8s.io/client-go/util/retry"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 	"sync"
 
-	flaagererrors "github.com/fyuan1316/flagger-operator/pkg/errors"
+	flaggererrors "github.com/fyuan1316/flagger-operator/pkg/errors"
 	"github.com/go-logr/logr"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -80,7 +80,11 @@ func (r *FlaggerReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 			manage.SetScheme(r.Scheme),
 			manage.SetRecorder(r.Recorder),
 			manage.SetFinalizer(finalizerID),
-			manage.SetStatusUpdater(operatorStatusUpdater))
+			manage.SetStatusUpdater(operatorStatusUpdater),
+			// 兼容原有chart安装信息
+			manage.SetChartName("cluster-asm"),
+			//flagger chart's default namespace
+			manage.SetDefaultInstallNamespace("istio-system"))
 
 		provisionTasks, deletionTasks = entry.GetOperatorStages()
 	})
@@ -88,49 +92,38 @@ func (r *FlaggerReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	result, err := mgr.Reconcile(instance, provisionTasks, deletionTasks)
 	if err != nil {
 		log.Error(err, "Reconcile err")
-		r.Recorder.Event(instance, flaagererrors.WarningEvent, flaagererrors.ReconcileError, err.Error())
+		r.Recorder.Event(instance, flaggererrors.WarningEvent, flaggererrors.ReconcileError, err.Error())
 		return result, err
 	}
 
 	return ctrl.Result{}, nil
 }
 
-var operatorStatusUpdater = func(obj runtime.Object, client client.Client) func(isReady, isHealthy bool) error {
-	return func(isReady, isHealthy bool) error {
-		var asm *operatorv1alpha1.Flagger
-		var ok bool
-		if asm, ok = obj.(*operatorv1alpha1.Flagger); !ok {
-			return pkgerrors.New("operatorStatusUpdate cast model.Object to operatorv1alpha1.Flagger error")
+var operatorStatusUpdater = func(reqCtx *model.OperatorContext, statusCtx *model.StatusContext) error {
+	asm := &operatorv1alpha1.Flagger{}
+	k8sClient := reqCtx.K8sClient
+	wantedStatus := statusCtx.GetOperatorStatus()
+	return retry.RetryOnConflict(manage.DefaultBackoff, func() error {
+		key, _ := client.ObjectKeyFromObject(reqCtx.Instance)
+		err := k8sClient.Get(context.Background(), key, asm)
+		if err != nil {
+			return err
 		}
-		asmCopy := asm.DeepCopy()
-		asmCopy.Status.SetState(isReady, isHealthy)
-		if asm.Status.State != asmCopy.Status.State {
-			if updErr := client.Status().Update(context.Background(), asmCopy); updErr != nil {
-				if errors.IsConflict(updErr) {
-					cur := &operatorv1alpha1.Flagger{}
-					if err := client.Get(
-						context.Background(),
-						types.NamespacedName{
-							Namespace: asmCopy.GetNamespace(),
-							Name:      asmCopy.GetName(),
-						},
-						cur,
-					); err != nil {
-						return err
-					}
-					retryObj := cur.DeepCopy()
-					retryObj.Status.SetState(isReady, isHealthy)
-					if updErr2 := client.Status().Update(context.Background(), retryObj); updErr2 != nil {
-						return pkgerrors.Wrap(updErr2, "reUpdate FlaggerStatus error")
-					}
-					return nil
-				}
-				return pkgerrors.Wrap(updErr, "update FlaggerStatus error")
+		current := asm.DeepCopy()
+		if !equality.OperatorStatusSemantic.DeepDerivative(wantedStatus, current.Status.GetOperatorStatus()) {
+			current.Status.State = wantedStatus.State
+			if wantedStatus.InstallConditions != nil {
+				current.Status.InstallConditions = wantedStatus.InstallConditions
+			}
+			if wantedStatus.DeleteConditions != nil {
+				current.Status.DeleteConditions = wantedStatus.DeleteConditions
+			}
+			if errUpd := k8sClient.Status().Update(context.Background(), current); errUpd != nil {
+				return errUpd
 			}
 		}
 		return nil
-	}
-
+	})
 }
 
 func (r *FlaggerReconciler) SetupWithManager(mgr ctrl.Manager) error {
