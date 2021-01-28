@@ -18,7 +18,6 @@ package main
 
 import (
 	"flag"
-	crdv1beta1 "github.com/fyuan1316/flagger-operator/api/dep/crd/v1beta1"
 	"github.com/fyuan1316/flagger-operator/pkg/task/entry"
 	"os"
 
@@ -41,7 +40,6 @@ var (
 
 func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
-	utilruntime.Must(crdv1beta1.AddToScheme(scheme))
 	utilruntime.Must(operatorv1alpha1.AddToScheme(scheme))
 	// +kubebuilder:scaffold:scheme
 }
