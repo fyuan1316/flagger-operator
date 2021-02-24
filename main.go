@@ -19,7 +19,12 @@ package main
 import (
 	"flag"
 	"github.com/fyuan1316/flagger-operator/pkg/task/entry"
+	"github.com/fyuan1316/flagger-operator/pkg/util/env"
 	"os"
+	"sigs.k8s.io/controller-runtime/pkg/cache"
+	"sigs.k8s.io/controller-runtime/pkg/manager"
+	"strings"
+	"time"
 
 	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
@@ -46,22 +51,49 @@ func init() {
 
 func main() {
 	var metricsAddr string
-	var enableLeaderElection bool
+	var interval int
 	flag.StringVar(&metricsAddr, "metrics-addr", ":8080", "The address the metric endpoint binds to.")
-	flag.BoolVar(&enableLeaderElection, "enable-leader-election", false,
-		"Enable leader election for controller manager. "+
-			"Enabling this will ensure there is only one active controller manager.")
+	flag.IntVar(&interval, "interval", 30, "Timer interval is used to synchronize business cluster resources")
 	flag.Parse()
-
 	ctrl.SetLogger(zap.New(zap.UseDevMode(true)))
-
-	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
-		Scheme:             scheme,
-		MetricsBindAddress: metricsAddr,
-		Port:               9443,
-		LeaderElection:     enableLeaderElection,
-		LeaderElectionID:   "324354ae.alauda.io",
-	})
+	watchNS, err := env.GetWatchNamespace()
+	if err != nil {
+		setupLog.Error(err, "unable to start manager")
+		os.Exit(1)
+	}
+	leaderElectionNS, leaderElectionEnabled := env.GetLeaderElectionNamespace()
+	d := time.Second * time.Duration(interval)
+	if !leaderElectionEnabled {
+		setupLog.Info("Leader election namespace not set. Leader election is disabled. NOT APPROPRIATE FOR PRODUCTION USE!")
+	}
+	var mgrOpt manager.Options
+	if watchNS != "" {
+		namespaces := strings.Split(watchNS, ",")
+		// Create MultiNamespacedCache with watched namespaces if it's not empty.
+		mgrOpt = manager.Options{
+			NewCache:                cache.MultiNamespacedCacheBuilder(namespaces),
+			Scheme:                  scheme,
+			MetricsBindAddress:      metricsAddr,
+			Port:                    9443,
+			LeaderElection:          leaderElectionEnabled,
+			LeaderElectionNamespace: leaderElectionNS,
+			LeaderElectionID:        "flagger-operator-lock",
+			SyncPeriod:              &d,
+		}
+	} else {
+		// Create manager option for watching all namespaces.
+		mgrOpt = manager.Options{
+			Scheme:                  scheme,
+			MetricsBindAddress:      metricsAddr,
+			Port:                    9443,
+			Namespace:               watchNS,
+			LeaderElection:          leaderElectionEnabled,
+			LeaderElectionNamespace: leaderElectionNS,
+			LeaderElectionID:        "flagger-operator-lock",
+			SyncPeriod:              &d,
+		}
+	}
+	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), mgrOpt)
 	if err != nil {
 		setupLog.Error(err, "unable to start manager")
 		os.Exit(1)
