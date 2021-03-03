@@ -1,34 +1,20 @@
-# Build the manager binary
-FROM golang:1.13 as builder
+FROM harbor-b.alauda.cn/asm/builder:0.4-alpine3.12.1 AS builder
 
-WORKDIR /workspace
-# Copy the Go Modules manifests
-COPY go.mod go.mod
-COPY go.sum go.sum
-# cache deps before building and copying source so that we don't need to re-download as much
-# and so that source changes don't invalidate our downloaded layer
-ENV GOPROXY https://athens.alauda.cn
+COPY ./bin/ /opt/
 
-# Copy the go source
-COPY main.go main.go
-COPY api/ api/
-COPY controllers/ controllers/
-COPY pkg/ pkg/
+RUN ARCH="" && dpkgArch="$(arch)" \
+  && case "${dpkgArch}" in \
+  x86_64) ARCH='amd64' && upx /opt/${ARCH}/manager ;; \
+  aarch64) ARCH='arm64' && upx /opt/${ARCH}/manager  ;; \
+  *) echo "unsupported architecture"; exit 1 ;; \
+  esac \
+  && cp /opt/${ARCH}/manager /manager
 
-RUN go mod download
-
-# Build
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=on go build -a -o manager main.go
-
-# Use distroless as minimal base image to package the manager binary
-# Refer to https://github.com/GoogleContainerTools/distroless for more details
-FROM harbor-b.alauda.cn/asm/runner:0.1-alpine3.12.1
+FROM alpine
 WORKDIR /
-COPY --from=builder /workspace/manager .
+COPY --from=builder /manager /manager
 COPY files/ files/
-#USER nonroot:nonroot
 
-RUN apk add --no-cache bash && rm -rf /var/cache/apk/*
 COPY --from=alpine/k8s:1.14.9 /usr/bin/kubectl /usr/local/bin/kubectl
-
+RUN apk add --no-cache bash ca-certificates && rm -rf /var/cache/apk/*
 ENTRYPOINT ["/manager"]

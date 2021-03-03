@@ -2,6 +2,7 @@ apiVersion: operator.alauda.io/v1alpha1
 kind: Flagger
 metadata:
   name: flagger-sample
+  namespace: istio-system
 spec:
   cluster: ovn
   namespace: istio-system
