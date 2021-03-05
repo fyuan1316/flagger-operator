@@ -11,13 +11,13 @@ func loggingHandler(w http.ResponseWriter, r *http.Request) {
 	if strings.ToUpper(r.Method) == "POST" {
 		levels, ok := r.URL.Query()["level"]
 		if !ok || len(levels) < 1 {
-			w.Write([]byte("Url Param 'level' is missing"))
+			_, _ = w.Write([]byte("Url Param 'level' is missing"))
 			return
 		}
 		level := levels[0]
 		err := UpdateScopes(level)
 		if err != nil {
-			w.Write([]byte(err.Error()))
+			_, _ = w.Write([]byte(err.Error()))
 			return
 		}
 	}
@@ -29,9 +29,9 @@ func loggingHandler(w http.ResponseWriter, r *http.Request) {
 	sort.Strings(lines)
 	lines = append(lines, "")
 	data := strings.Join(lines, "\n")
-	w.Write([]byte(data))
+	_, _ = w.Write([]byte(data))
 }
 
 func init() {
-	//http.HandleFunc("/debug/logging", loggingHandler)
+	http.HandleFunc("/debug/logging", loggingHandler)
 }
