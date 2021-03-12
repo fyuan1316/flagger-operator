@@ -3,4 +3,4 @@
 #for ns in $nslist;do
 #        echo $ns
 #done
-kubectl label ns default key=fy --overwrite=true
+#kubectl label ns default key=fy --overwrite=true

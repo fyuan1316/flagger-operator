@@ -25,14 +25,15 @@ func getDeleteStages() [][]model.ExecuteItem {
 
 // 初始化任务数据
 func SetUp() error {
+	//  在这里定义部署任务和删除任务
+	// 一般情况下部署任务可以包含两类，即migration 和 provision，而删除任务只有一类。（也可以根据自己的需要定义）
 
-	// for deploy stages
 	// 1 migrations
-	//migrationtasks.SetUpMigShell()
+	// migrationtasks.SetUpMigShell()
 	// 2 provisions
 	provisiontasks.SetUpResource()
-	//-----------------
-	//for delete stages
+
+	// 3 deletion
 	provisiontasks.SetUpDeletion()
 	return nil
 }

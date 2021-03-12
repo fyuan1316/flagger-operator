@@ -19,6 +19,9 @@ package controllers
 import (
 	"context"
 	"fmt"
+	"github.com/fyuan1316/flagger-operator/pkg/util/env"
+	"sync"
+
 	entry "github.com/fyuan1316/flagger-operator/pkg/task/entry"
 	"github.com/fyuan1316/operatorlib/equality"
 	"github.com/fyuan1316/operatorlib/manage"
@@ -27,7 +30,6 @@ import (
 	"k8s.io/client-go/tools/record"
 	"k8s.io/client-go/util/retry"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
-	"sync"
 
 	flaggererrors "github.com/fyuan1316/flagger-operator/pkg/errors"
 	"github.com/go-logr/logr"
@@ -83,8 +85,8 @@ func (r *FlaggerReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 			manage.SetStatusUpdater(operatorStatusUpdater),
 			// 兼容原有chart安装信息
 			manage.SetChartName("cluster-asm"),
-			//flagger chart's default namespace
-			manage.SetDefaultInstallNamespace("istio-system"))
+			// flagger chart's default namespace
+			manage.SetDefaultInstallNamespace(env.IstioNamespace()))
 
 		provisionTasks, deletionTasks = entry.GetOperatorStages()
 	})
